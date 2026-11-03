@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { FlatList, Pressable, StyleSheet, Text, TextInput } from "react-native";
 
 type Task = {
   id: string;
@@ -26,25 +26,50 @@ export default function Index() {
   };
 
   return (
-    <View style={styles.container}>
-      <TextInput
-        placeholder="Lägg till en ny uppgift..."
-        value={text}
-        onChangeText={setText}
-      />
-      <Pressable onPress={addTask}>
-        <Text>lägg till</Text>
-      </Pressable>
+    <FlatList
+      contentInsetAdjustmentBehavior="automatic"
+      contentContainerStyle={styles.list}
+      data={tasklist}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item }) => <Text>{item.title}</Text>}
+      ListHeaderComponent={
+        <>
+          <TextInput
+            style={styles.input}
+            placeholder="Lägg till en ny uppgift..."
+            value={text}
+            onChangeText={setText}
+          />
+          <Pressable style={styles.button} onPress={addTask}>
+            <Text style={styles.buttonText}>Lägg till</Text>
+          </Pressable>
 
-      <Text>Antal uppgifter: {tasklist.length}</Text>
-    </View>
+          <Text>Antal uppgifter: {tasklist.length}</Text>
+        </>
+      }
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  list: {
+    padding: 16,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 12,
+  },
+  button: {
+    backgroundColor: "#208AEF",
+    padding: 12,
+    borderRadius: 8,
+    marginVertical: 8,
     alignItems: "center",
-    justifyContent: "center",
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
   },
 });
