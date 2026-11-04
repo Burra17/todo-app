@@ -11,10 +11,34 @@ import {
   View,
 } from "react-native";
 
+type Filter = "all" | "active" | "done";
+
+const FILTER_LABELS: Record<Filter, string> = {
+  all: "Alla",
+  active: "Aktiva",
+  done: "Klara",
+};
+
+const EMPTY_MESSAGES: Record<Filter, string> = {
+  all: "Inga uppgifter än. Lägg till en ny uppgift!",
+  active: "Inget kvar att göra 🎉",
+  done: "Inga klara uppgifter än. Bocka av en uppgift så hamnar den här.",
+};
+
 export default function Index() {
   const [text, setText] = useState("");
   const [tasklist, setTasklist] = useState<Task[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [filter, setFilter] = useState<Filter>("all");
+
+  const visibleTasks = tasklist.filter((task) => {
+    if (filter === "active") {
+      return !task.done;
+    } else if (filter === "done") {
+      return task.done;
+    }
+    return true;
+  });
 
   useEffect(() => {
     const loadTasks = async () => {
@@ -73,11 +97,9 @@ export default function Index() {
       keyboardShouldPersistTaps="handled"
       style={styles.screen}
       contentContainerStyle={styles.list}
-      data={tasklist}
+      data={visibleTasks}
       ListEmptyComponent={() => (
-        <Text style={styles.emptyText}>
-          Inga uppgifter än. Lägg till en ny uppgift!
-        </Text>
+        <Text style={styles.emptyText}>{EMPTY_MESSAGES[filter]}</Text>
       )}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
@@ -101,10 +123,32 @@ export default function Index() {
 
           {tasklist.length > 0 && (
             <Text style={styles.counter}>
-              {tasklist.filter((task) => task.done).length} av{" "}
-              {tasklist.length} klara
+              {tasklist.filter((task) => task.done).length} av {tasklist.length}{" "}
+              klara
             </Text>
           )}
+
+          <View style={styles.filterRow}>
+            {(Object.keys(FILTER_LABELS) as Filter[]).map((value) => (
+              <Pressable
+                key={value}
+                style={[
+                  styles.filterButton,
+                  filter === value && styles.filterButtonActive,
+                ]}
+                onPress={() => setFilter(value)}
+              >
+                <Text
+                  style={[
+                    styles.filterButtonText,
+                    filter === value && styles.filterButtonTextActive,
+                  ]}
+                >
+                  {FILTER_LABELS[value]}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
         </View>
       }
     />
@@ -153,5 +197,27 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 20,
     color: colors.textMuted,
+  },
+  filterRow: {
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 12,
+  },
+  filterButton: {
+    flex: 1,
+    paddingVertical: 8,
+    borderRadius: 12,
+    alignItems: "center",
+    backgroundColor: colors.surface,
+  },
+  filterButtonActive: {
+    backgroundColor: colors.primary,
+  },
+  filterButtonText: {
+    color: colors.text,
+  },
+  filterButtonTextActive: {
+    color: colors.onPrimary,
+    fontWeight: "bold",
   },
 });
