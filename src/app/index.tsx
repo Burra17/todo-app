@@ -13,6 +13,18 @@ import {
 
 type Filter = "all" | "active" | "done";
 
+const FILTER_LABELS: Record<Filter, string> = {
+  all: "Alla",
+  active: "Aktiva",
+  done: "Klara",
+};
+
+const EMPTY_MESSAGES: Record<Filter, string> = {
+  all: "Inga uppgifter än. Lägg till en ny uppgift!",
+  active: "Inget kvar att göra 🎉",
+  done: "Inga klara uppgifter än. Bocka av en uppgift så hamnar den här.",
+};
+
 export default function Index() {
   const [text, setText] = useState("");
   const [tasklist, setTasklist] = useState<Task[]>([]);
@@ -87,9 +99,7 @@ export default function Index() {
       contentContainerStyle={styles.list}
       data={visibleTasks}
       ListEmptyComponent={() => (
-        <Text style={styles.emptyText}>
-          Inga uppgifter än. Lägg till en ny uppgift!
-        </Text>
+        <Text style={styles.emptyText}>{EMPTY_MESSAGES[filter]}</Text>
       )}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
@@ -119,54 +129,25 @@ export default function Index() {
           )}
 
           <View style={styles.filterRow}>
-            <Pressable
-              style={[
-                styles.filterButton,
-                filter === "all" && styles.filterButtonActive,
-              ]}
-              onPress={() => setFilter("all")}
-            >
-              <Text
+            {(Object.keys(FILTER_LABELS) as Filter[]).map((value) => (
+              <Pressable
+                key={value}
                 style={[
-                  styles.filterButtonText,
-                  filter === "all" && styles.filterButtonTextActive,
+                  styles.filterButton,
+                  filter === value && styles.filterButtonActive,
                 ]}
+                onPress={() => setFilter(value)}
               >
-                Alla
-              </Text>
-            </Pressable>
-            <Pressable
-              style={[
-                styles.filterButton,
-                filter === "active" && styles.filterButtonActive,
-              ]}
-              onPress={() => setFilter("active")}
-            >
-              <Text
-                style={[
-                  styles.filterButtonText,
-                  filter === "active" && styles.filterButtonTextActive,
-                ]}
-              >
-                Aktiva
-              </Text>
-            </Pressable>
-            <Pressable
-              style={[
-                styles.filterButton,
-                filter === "done" && styles.filterButtonActive,
-              ]}
-              onPress={() => setFilter("done")}
-            >
-              <Text
-                style={[
-                  styles.filterButtonText,
-                  filter === "done" && styles.filterButtonTextActive,
-                ]}
-              >
-                Klara
-              </Text>
-            </Pressable>
+                <Text
+                  style={[
+                    styles.filterButtonText,
+                    filter === value && styles.filterButtonTextActive,
+                  ]}
+                >
+                  {FILTER_LABELS[value]}
+                </Text>
+              </Pressable>
+            ))}
           </View>
         </View>
       }
