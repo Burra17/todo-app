@@ -1,6 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 
+import { colors } from "@/constants/colors";
+
 export type Task = {
   id: string;
   title: string;
@@ -26,7 +28,7 @@ export function TaskItem({
     >
       <View style={styles.row}>
         <Pressable style={styles.textArea} onPress={() => onToggle(task.id)}>
-          <Text style={task.done ? styles.doneTask : undefined}>
+          <Text style={[styles.text, task.done && styles.doneTask]}>
             {task.title}
           </Text>
         </Pressable>
@@ -40,22 +42,25 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 12,
-    backgroundColor: "white",
+    backgroundColor: colors.surface,
   },
   textArea: {
     flex: 1,
   },
+  text: {
+    color: colors.text,
+  },
   doneTask: {
     textDecorationLine: "line-through",
-    color: "#999",
+    color: colors.textMuted,
   },
   deleteButton: {
-    backgroundColor: "red",
+    backgroundColor: colors.danger,
     justifyContent: "center",
     paddingHorizontal: 20,
   },
   deleteText: {
-    color: "white",
+    color: colors.onPrimary,
     fontWeight: "bold",
   },
 });

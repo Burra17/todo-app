@@ -1,4 +1,5 @@
 import { Task, TaskItem } from "@/components/TaskItem";
+import { colors } from "@/constants/colors";
 import { Storage } from "expo-sqlite/kv-store";
 import { useEffect, useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, TextInput } from "react-native";
@@ -62,6 +63,7 @@ export default function Index() {
   return (
     <FlatList
       contentInsetAdjustmentBehavior="automatic"
+      style={styles.screen}
       contentContainerStyle={styles.list}
       data={tasklist}
       ListEmptyComponent={() => (
@@ -97,29 +99,34 @@ export default function Index() {
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    backgroundColor: colors.background,
+  },
   list: {
     padding: 16,
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: colors.border,
     borderRadius: 8,
     padding: 12,
+    backgroundColor: colors.surface,
+    color: colors.text,
   },
   button: {
-    backgroundColor: "#208AEF",
+    backgroundColor: colors.primary,
     padding: 12,
     borderRadius: 8,
     marginVertical: 8,
     alignItems: "center",
   },
   buttonText: {
-    color: "white",
+    color: colors.onPrimary,
     fontWeight: "bold",
   },
   emptyText: {
     textAlign: "center",
     marginTop: 20,
-    color: "#999",
+    color: colors.textMuted,
   },
 });
