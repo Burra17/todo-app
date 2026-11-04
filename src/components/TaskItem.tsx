@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 
 export type Task = {
   id: string;
@@ -16,16 +17,21 @@ export function TaskItem({
   onDelete: (id: string) => void;
 }) {
   return (
-    <View style={styles.row}>
-      <Pressable style={styles.textArea} onPress={() => onToggle(task.id)}>
-        <Text style={task.done ? styles.doneTask : undefined}>
-          {task.title}
-        </Text>
-      </Pressable>
-      <Pressable onPress={() => onDelete(task.id)}>
-        <Text style={styles.deleteText}>Ta bort</Text>
-      </Pressable>
-    </View>
+    <ReanimatedSwipeable
+      renderRightActions={() => (
+        <Pressable style={styles.deleteButton} onPress={() => onDelete(task.id)}>
+          <Text style={styles.deleteText}>Ta bort</Text>
+        </Pressable>
+      )}
+    >
+      <View style={styles.row}>
+        <Pressable style={styles.textArea} onPress={() => onToggle(task.id)}>
+          <Text style={task.done ? styles.doneTask : undefined}>
+            {task.title}
+          </Text>
+        </Pressable>
+      </View>
+    </ReanimatedSwipeable>
   );
 }
 
@@ -34,6 +40,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 12,
+    backgroundColor: "white",
   },
   textArea: {
     flex: 1,
@@ -42,9 +49,13 @@ const styles = StyleSheet.create({
     textDecorationLine: "line-through",
     color: "#999",
   },
+  deleteButton: {
+    backgroundColor: "red",
+    justifyContent: "center",
+    paddingHorizontal: 20,
+  },
   deleteText: {
-    marginLeft: 10,
-    color: "red",
+    color: "white",
     fontWeight: "bold",
   },
 });
