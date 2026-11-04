@@ -64,6 +64,11 @@ export default function Index() {
       contentInsetAdjustmentBehavior="automatic"
       contentContainerStyle={styles.list}
       data={tasklist}
+      ListEmptyComponent={() => (
+        <Text style={styles.emptyText}>
+          Inga uppgifter än. Lägg till en ny uppgift!
+        </Text>
+      )}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
         <TaskItem task={item} onToggle={toggleTask} onDelete={deleteTask} />
@@ -111,5 +116,10 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "white",
     fontWeight: "bold",
+  },
+  emptyText: {
+    textAlign: "center",
+    marginTop: 20,
+    color: "#999",
   },
 });
