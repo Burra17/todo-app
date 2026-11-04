@@ -27,13 +27,20 @@ export default function Index() {
     setTasklist(updatedTasks);
   };
 
+  const deleteTask = (id: string) => {
+    const updatedTasks = tasklist.filter((task) => task.id !== id);
+    setTasklist(updatedTasks);
+  };
+
   return (
     <FlatList
       contentInsetAdjustmentBehavior="automatic"
       contentContainerStyle={styles.list}
       data={tasklist}
       keyExtractor={(item) => item.id}
-      renderItem={({ item }) => <TaskItem task={item} onToggle={toggleTask} />}
+      renderItem={({ item }) => (
+        <TaskItem task={item} onToggle={toggleTask} onDelete={deleteTask} />
+      )}
       ListHeaderComponent={
         <>
           <TextInput
