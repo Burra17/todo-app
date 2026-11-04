@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 
-import { colors } from "@/constants/colors";
+import { Colors, useColors } from "@/constants/colors";
 import { useState } from "react";
 
 export type Task = {
@@ -23,6 +23,8 @@ export function TaskItem({
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState(task.title);
+  const colors = useColors();
+  const styles = createStyles(colors);
 
   const save = () => {
     if (draft.trim() === "") {
@@ -72,51 +74,52 @@ export function TaskItem({
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    borderRadius: 12,
-    overflow: "hidden",
-    marginBottom: 8,
-  },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    backgroundColor: colors.surface,
-  },
-  textArea: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  circle: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    borderWidth: 2,
-    borderColor: colors.primary,
-    marginRight: 12,
-  },
-  circleDone: {
-    backgroundColor: colors.primary,
-  },
-  text: {
-    flex: 1,
-    fontSize: 16,
-    color: colors.text,
-  },
-  doneTask: {
-    textDecorationLine: "line-through",
-    color: colors.textMuted,
-  },
-  deleteButton: {
-    backgroundColor: colors.danger,
-    justifyContent: "center",
-    paddingHorizontal: 20,
-  },
-  deleteText: {
-    color: colors.onPrimary,
-    fontWeight: "bold",
-  },
-});
+const createStyles = (colors: Colors) =>
+  StyleSheet.create({
+    card: {
+      borderRadius: 12,
+      overflow: "hidden",
+      marginBottom: 8,
+    },
+    row: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingVertical: 14,
+      paddingHorizontal: 16,
+      backgroundColor: colors.surface,
+    },
+    textArea: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    circle: {
+      width: 22,
+      height: 22,
+      borderRadius: 11,
+      borderWidth: 2,
+      borderColor: colors.primary,
+      marginRight: 12,
+    },
+    circleDone: {
+      backgroundColor: colors.primary,
+    },
+    text: {
+      flex: 1,
+      fontSize: 16,
+      color: colors.text,
+    },
+    doneTask: {
+      textDecorationLine: "line-through",
+      color: colors.textMuted,
+    },
+    deleteButton: {
+      backgroundColor: colors.danger,
+      justifyContent: "center",
+      paddingHorizontal: 20,
+    },
+    deleteText: {
+      color: colors.onPrimary,
+      fontWeight: "bold",
+    },
+  });

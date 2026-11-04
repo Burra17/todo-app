@@ -1,5 +1,5 @@
 import { Task, TaskItem } from "@/components/TaskItem";
-import { colors } from "@/constants/colors";
+import { Colors, useColors } from "@/constants/colors";
 import { Storage } from "expo-sqlite/kv-store";
 import { useEffect, useState } from "react";
 import {
@@ -30,6 +30,8 @@ export default function Index() {
   const [tasklist, setTasklist] = useState<Task[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [filter, setFilter] = useState<Filter>("all");
+  const colors = useColors();
+  const styles = createStyles(colors);
 
   const visibleTasks = tasklist.filter((task) => {
     if (filter === "active") {
@@ -167,69 +169,70 @@ export default function Index() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: {
-    backgroundColor: colors.background,
-  },
-  list: {
-    padding: 16,
-  },
-  header: {
-    marginBottom: 12,
-  },
-  inputRow: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  input: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 12,
-    padding: 12,
-    fontSize: 16,
-    backgroundColor: colors.surface,
-    color: colors.text,
-  },
-  button: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    justifyContent: "center",
-  },
-  counter: {
-    marginTop: 12,
-    color: colors.textMuted,
-  },
-  buttonText: {
-    color: colors.onPrimary,
-    fontWeight: "bold",
-  },
-  emptyText: {
-    textAlign: "center",
-    marginTop: 20,
-    color: colors.textMuted,
-  },
-  filterRow: {
-    flexDirection: "row",
-    gap: 8,
-    marginTop: 12,
-  },
-  filterButton: {
-    flex: 1,
-    paddingVertical: 8,
-    borderRadius: 12,
-    alignItems: "center",
-    backgroundColor: colors.surface,
-  },
-  filterButtonActive: {
-    backgroundColor: colors.primary,
-  },
-  filterButtonText: {
-    color: colors.text,
-  },
-  filterButtonTextActive: {
-    color: colors.onPrimary,
-    fontWeight: "bold",
-  },
-});
+const createStyles = (colors: Colors) =>
+  StyleSheet.create({
+    screen: {
+      backgroundColor: colors.background,
+    },
+    list: {
+      padding: 16,
+    },
+    header: {
+      marginBottom: 12,
+    },
+    inputRow: {
+      flexDirection: "row",
+      gap: 8,
+    },
+    input: {
+      flex: 1,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 12,
+      padding: 12,
+      fontSize: 16,
+      backgroundColor: colors.surface,
+      color: colors.text,
+    },
+    button: {
+      backgroundColor: colors.primary,
+      paddingHorizontal: 16,
+      borderRadius: 12,
+      justifyContent: "center",
+    },
+    counter: {
+      marginTop: 12,
+      color: colors.textMuted,
+    },
+    buttonText: {
+      color: colors.onPrimary,
+      fontWeight: "bold",
+    },
+    emptyText: {
+      textAlign: "center",
+      marginTop: 20,
+      color: colors.textMuted,
+    },
+    filterRow: {
+      flexDirection: "row",
+      gap: 8,
+      marginTop: 12,
+    },
+    filterButton: {
+      flex: 1,
+      paddingVertical: 8,
+      borderRadius: 12,
+      alignItems: "center",
+      backgroundColor: colors.surface,
+    },
+    filterButtonActive: {
+      backgroundColor: colors.primary,
+    },
+    filterButtonText: {
+      color: colors.text,
+    },
+    filterButtonTextActive: {
+      color: colors.onPrimary,
+      fontWeight: "bold",
+    },
+  });
