@@ -1,7 +1,8 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 
 import { colors } from "@/constants/colors";
+import { useState } from "react";
 
 export type Task = {
   id: string;
@@ -13,26 +14,58 @@ export function TaskItem({
   task,
   onToggle,
   onDelete,
+  onEdit,
 }: {
   task: Task;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
+  onEdit: (id: string, title: string) => void;
 }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [draft, setDraft] = useState(task.title);
+
+  const save = () => {
+    if (draft.trim() === "") {
+      setDraft(task.title); // Revert to original title if empty
+    } else {
+      onEdit(task.id, draft.trim());
+    }
+    setIsEditing(false);
+  };
+
   return (
     <ReanimatedSwipeable
       containerStyle={styles.card}
       renderRightActions={() => (
-        <Pressable style={styles.deleteButton} onPress={() => onDelete(task.id)}>
+        <Pressable
+          style={styles.deleteButton}
+          onPress={() => onDelete(task.id)}
+        >
           <Text style={styles.deleteText}>Ta bort</Text>
         </Pressable>
       )}
     >
       <View style={styles.row}>
-        <Pressable style={styles.textArea} onPress={() => onToggle(task.id)}>
+        <Pressable
+          style={styles.textArea}
+          onPress={() => onToggle(task.id)}
+          onLongPress={() => setIsEditing(true)}
+        >
           <View style={[styles.circle, task.done && styles.circleDone]} />
-          <Text style={[styles.text, task.done && styles.doneTask]}>
-            {task.title}
-          </Text>
+          {isEditing ? (
+            <TextInput
+              style={styles.text}
+              value={draft}
+              onChangeText={setDraft}
+              autoFocus
+              onSubmitEditing={save}
+              onBlur={save}
+            />
+          ) : (
+            <Text style={[styles.text, task.done && styles.doneTask]}>
+              {task.title}
+            </Text>
+          )}
         </Pressable>
       </View>
     </ReanimatedSwipeable>
