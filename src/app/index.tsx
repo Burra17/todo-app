@@ -1,11 +1,6 @@
+import { Task, TaskItem } from "@/components/TaskItem";
 import { useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, TextInput } from "react-native";
-
-type Task = {
-  id: string;
-  title: string;
-  done: boolean;
-};
 
 export default function Index() {
   const [text, setText] = useState("");
@@ -25,13 +20,20 @@ export default function Index() {
     setText("");
   };
 
+  const toggleTask = (id: string) => {
+    const updatedTasks = tasklist.map((task) =>
+      task.id === id ? { ...task, done: !task.done } : task,
+    );
+    setTasklist(updatedTasks);
+  };
+
   return (
     <FlatList
       contentInsetAdjustmentBehavior="automatic"
       contentContainerStyle={styles.list}
       data={tasklist}
       keyExtractor={(item) => item.id}
-      renderItem={({ item }) => <Text>{item.title}</Text>}
+      renderItem={({ item }) => <TaskItem task={item} onToggle={toggleTask} />}
       ListHeaderComponent={
         <>
           <TextInput
@@ -45,6 +47,10 @@ export default function Index() {
           </Pressable>
 
           <Text>Antal uppgifter: {tasklist.length}</Text>
+          <Text>
+            Antal slutförda uppgifter:{" "}
+            {tasklist.filter((task) => task.done).length}
+          </Text>
         </>
       }
     />
