@@ -11,10 +11,22 @@ import {
   View,
 } from "react-native";
 
+type Filter = "all" | "active" | "done";
+
 export default function Index() {
   const [text, setText] = useState("");
   const [tasklist, setTasklist] = useState<Task[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [filter, setFilter] = useState<Filter>("all");
+
+  const visibleTasks = tasklist.filter((task) => {
+    if (filter === "active") {
+      return !task.done;
+    } else if (filter === "done") {
+      return task.done;
+    }
+    return true;
+  });
 
   useEffect(() => {
     const loadTasks = async () => {
@@ -73,7 +85,7 @@ export default function Index() {
       keyboardShouldPersistTaps="handled"
       style={styles.screen}
       contentContainerStyle={styles.list}
-      data={tasklist}
+      data={visibleTasks}
       ListEmptyComponent={() => (
         <Text style={styles.emptyText}>
           Inga uppgifter än. Lägg till en ny uppgift!
@@ -101,10 +113,61 @@ export default function Index() {
 
           {tasklist.length > 0 && (
             <Text style={styles.counter}>
-              {tasklist.filter((task) => task.done).length} av{" "}
-              {tasklist.length} klara
+              {tasklist.filter((task) => task.done).length} av {tasklist.length}{" "}
+              klara
             </Text>
           )}
+
+          <View style={styles.filterRow}>
+            <Pressable
+              style={[
+                styles.filterButton,
+                filter === "all" && styles.filterButtonActive,
+              ]}
+              onPress={() => setFilter("all")}
+            >
+              <Text
+                style={[
+                  styles.filterButtonText,
+                  filter === "all" && styles.filterButtonTextActive,
+                ]}
+              >
+                Alla
+              </Text>
+            </Pressable>
+            <Pressable
+              style={[
+                styles.filterButton,
+                filter === "active" && styles.filterButtonActive,
+              ]}
+              onPress={() => setFilter("active")}
+            >
+              <Text
+                style={[
+                  styles.filterButtonText,
+                  filter === "active" && styles.filterButtonTextActive,
+                ]}
+              >
+                Aktiva
+              </Text>
+            </Pressable>
+            <Pressable
+              style={[
+                styles.filterButton,
+                filter === "done" && styles.filterButtonActive,
+              ]}
+              onPress={() => setFilter("done")}
+            >
+              <Text
+                style={[
+                  styles.filterButtonText,
+                  filter === "done" && styles.filterButtonTextActive,
+                ]}
+              >
+                Klara
+              </Text>
+            </Pressable>
+          </View>
         </View>
       }
     />
@@ -153,5 +216,27 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 20,
     color: colors.textMuted,
+  },
+  filterRow: {
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 12,
+  },
+  filterButton: {
+    flex: 1,
+    paddingVertical: 8,
+    borderRadius: 12,
+    alignItems: "center",
+    backgroundColor: colors.surface,
+  },
+  filterButtonActive: {
+    backgroundColor: colors.primary,
+  },
+  filterButtonText: {
+    color: colors.text,
+  },
+  filterButtonTextActive: {
+    color: colors.onPrimary,
+    fontWeight: "bold",
   },
 });
