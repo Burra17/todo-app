@@ -20,6 +20,7 @@ export function TaskItem({
 }) {
   return (
     <ReanimatedSwipeable
+      containerStyle={styles.card}
       renderRightActions={() => (
         <Pressable style={styles.deleteButton} onPress={() => onDelete(task.id)}>
           <Text style={styles.deleteText}>Ta bort</Text>
@@ -28,6 +29,7 @@ export function TaskItem({
     >
       <View style={styles.row}>
         <Pressable style={styles.textArea} onPress={() => onToggle(task.id)}>
+          <View style={[styles.circle, task.done && styles.circleDone]} />
           <Text style={[styles.text, task.done && styles.doneTask]}>
             {task.title}
           </Text>
@@ -38,16 +40,37 @@ export function TaskItem({
 }
 
 const styles = StyleSheet.create({
+  card: {
+    borderRadius: 12,
+    overflow: "hidden",
+    marginBottom: 8,
+  },
   row: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
     backgroundColor: colors.surface,
   },
   textArea: {
     flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  circle: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: colors.primary,
+    marginRight: 12,
+  },
+  circleDone: {
+    backgroundColor: colors.primary,
   },
   text: {
+    flex: 1,
+    fontSize: 16,
     color: colors.text,
   },
   doneTask: {
