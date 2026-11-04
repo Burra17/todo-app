@@ -1,10 +1,37 @@
 import { Task, TaskItem } from "@/components/TaskItem";
-import { useState } from "react";
+import { Storage } from "expo-sqlite/kv-store";
+import { useEffect, useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, TextInput } from "react-native";
 
 export default function Index() {
   const [text, setText] = useState("");
   const [tasklist, setTasklist] = useState<Task[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const loadTasks = async () => {
+      try {
+        const storedTasks = await Storage.getItem("tasks");
+        if (storedTasks) {
+          setTasklist(JSON.parse(storedTasks));
+        }
+      } catch (error) {
+        console.warn("Failed to load tasks:", error);
+      }
+      setIsLoaded(true);
+    };
+
+    loadTasks();
+  }, []);
+
+  useEffect(() => {
+    if (!isLoaded) {
+      return;
+    }
+    Storage.setItem("tasks", JSON.stringify(tasklist)).catch((error) =>
+      console.warn("Failed to save tasks:", error),
+    );
+  }, [tasklist, isLoaded]);
 
   const addTask = () => {
     if (text.trim() === "") {
