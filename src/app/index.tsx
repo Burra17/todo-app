@@ -86,6 +86,13 @@ export default function Index() {
     setTasklist(updatedTasks);
   };
 
+  const editTask = (id: string, newTitle: string) => {
+    const updatedTasks = tasklist.map((task) =>
+      task.id === id ? { ...task, title: newTitle } : task,
+    );
+    setTasklist(updatedTasks);
+  };
+
   const deleteTask = (id: string) => {
     const updatedTasks = tasklist.filter((task) => task.id !== id);
     setTasklist(updatedTasks);
@@ -103,7 +110,12 @@ export default function Index() {
       )}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
-        <TaskItem task={item} onToggle={toggleTask} onDelete={deleteTask} />
+        <TaskItem
+          task={item}
+          onToggle={toggleTask}
+          onDelete={deleteTask}
+          onEdit={editTask}
+        />
       )}
       ListHeaderComponent={
         <View style={styles.header}>
