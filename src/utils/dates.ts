@@ -1,3 +1,6 @@
+// These read the current time, which makes them impure. They live outside the
+// components because the React lint rules forbid calling Date.now() there.
+
 export const secondsFromNow = (seconds: number) =>
   new Date(Date.now() + seconds * 1000);
 
