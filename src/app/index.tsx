@@ -1,5 +1,6 @@
 import { Task, TaskItem } from "@/components/TaskItem";
 import { Colors, useColors } from "@/constants/colors";
+import * as Notifications from "expo-notifications";
 import { Storage } from "expo-sqlite/kv-store";
 import { useEffect, useState } from "react";
 import {
@@ -41,6 +42,17 @@ export default function Index() {
     }
     return true;
   });
+
+  useEffect(() => {
+    const requestNotificationPermission = async () => {
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== "granted") {
+        console.warn("Notification permissions not granted");
+      }
+    };
+
+    requestNotificationPermission();
+  }, []);
 
   useEffect(() => {
     const loadTasks = async () => {
@@ -98,6 +110,16 @@ export default function Index() {
   const deleteTask = (id: string) => {
     const updatedTasks = tasklist.filter((task) => task.id !== id);
     setTasklist(updatedTasks);
+  };
+
+  const sendTestNotification = async () => {
+    await Notifications.scheduleNotificationAsync({
+      content: { title: "Test", body: "Påminnelser fungerar! 🎉" },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+        seconds: 10,
+      },
+    });
   };
 
   return (
@@ -163,6 +185,14 @@ export default function Index() {
               </Pressable>
             ))}
           </View>
+
+          {/* Temporary: remove when reminders are in place */}
+          <Pressable
+            style={[styles.button, styles.testButton]}
+            onPress={sendTestNotification}
+          >
+            <Text style={styles.buttonText}>Testa notis (10 s)</Text>
+          </Pressable>
         </View>
       }
     />
@@ -212,6 +242,11 @@ const createStyles = (colors: Colors) =>
       textAlign: "center",
       marginTop: 20,
       color: colors.textMuted,
+    },
+    testButton: {
+      marginTop: 12,
+      paddingVertical: 12,
+      alignItems: "center",
     },
     filterRow: {
       flexDirection: "row",
