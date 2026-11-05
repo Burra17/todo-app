@@ -1,46 +1,97 @@
-# Welcome to your Expo app 👋
+# Todo App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A to-do app for iOS and Android built with React Native and Expo. It started as my first mobile app and a way to learn React Native properly.
 
-## Get started
+<p align="center">
+  <img src="docs/screenshots/light.png" alt="Todo App in light mode" width="250" />
+  &nbsp;&nbsp;
+  <img src="docs/screenshots/dark.png" alt="Todo App in dark mode" width="250" />
+</p>
 
-1. Install dependencies
+## Features
 
-   ```bash
-   npm install
-   ```
+- Add, complete and edit tasks (long press to edit)
+- Swipe left to delete
+- Filter by all, active or done
+- Tasks are saved on the device and survive restarts
+- Follows the system light and dark mode
+- Reminders as local notifications (in 1 hour, tonight or tomorrow morning)
 
-2. Start the app
+## Tech stack
 
-   ```bash
-   npx expo start
-   ```
+- [Expo](https://expo.dev) SDK 58 with [Expo Router](https://docs.expo.dev/router/introduction/)
+- React Native and TypeScript
+- `expo-sqlite/kv-store` for local storage
+- `expo-notifications` for reminders
+- `react-native-gesture-handler` for swipe to delete
 
-In the output, you'll find options to open the app in a
+## Getting started
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### Prerequisites
 
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- [Node.js](https://nodejs.org) (LTS)
+- The [Expo Go](https://expo.dev/go) app on your phone
 
-### Other setup steps
+### Run the app
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+```bash
+git clone https://github.com/Burra17/todo-app.git
+cd todo-app
+npm install
+npx expo start
+```
 
-## Learn more
+Scan the QR code with the camera (iOS) or the Expo Go app (Android). If the phone can't reach your computer on the network, use a tunnel:
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+npx expo start --tunnel
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+When adding packages, use `npx expo install <package>` instead of `npm install` so you get versions that match the Expo SDK.
 
-## Join the community
+## Scripts
 
-Join our community of developers creating universal apps.
+| Command            | Description               |
+| ------------------ | ------------------------- |
+| `npm start`        | Start the Expo dev server |
+| `npm run lint`     | Lint the code with ESLint |
+| `npx tsc --noEmit` | Type check the code       |
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Project structure
+
+```
+src/
+├── app/           # Screens and navigation (Expo Router, file-based routing)
+│   ├── _layout.tsx    # Root layout: navigation stack, theme, gestures
+│   └── index.tsx      # The task list screen
+├── components/    # Reusable components (TaskItem)
+├── constants/     # Light and dark color palettes
+└── utils/         # Date helpers for reminders
+```
+
+Every file in `src/app/` is a route, so other code lives outside that folder.
+
+## Git workflow
+
+Each GitHub issue gets its own branch, named with a prefix:
+
+| Prefix     | Used for                      | Example               |
+| ---------- | ----------------------------- | --------------------- |
+| `feature/` | New functionality             | `feature/add-task`    |
+| `fix/`     | Bug fixes                     | `fix/reminder-time`   |
+| `docs/`    | Documentation                 | `docs/readme`         |
+| `chore/`   | Cleanup, refactoring, tooling | `chore/code-comments` |
+
+- Commit messages are written in English, in the imperative mood: `Add delete button to tasks`, not `Added ...`.
+- Open a pull request with `Closes #<issue>` in the description so the issue closes on merge.
+- Branches are deleted on GitHub automatically after merge. Clean up locally with:
+
+```bash
+git checkout main
+git pull
+git branch -d <branch>
+```
+
+## License
+
+[MIT](LICENSE)
