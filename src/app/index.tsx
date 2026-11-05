@@ -26,9 +26,6 @@ const EMPTY_MESSAGES: Record<Filter, string> = {
   done: "Inga klara uppgifter än. Bocka av en uppgift så hamnar den här.",
 };
 
-const secondsFromNow = (seconds: number) =>
-  new Date(Date.now() + seconds * 1000);
-
 export default function Index() {
   const [text, setText] = useState("");
   const [tasklist, setTasklist] = useState<Task[]>([]);
@@ -115,12 +112,6 @@ export default function Index() {
     setTasklist(updatedTasks);
   };
 
-  const sendTestNotification = async () => {
-    if (tasklist.length > 0) {
-      await setReminder(tasklist[0].id, secondsFromNow(10));
-    }
-  };
-
   const setReminder = async (id: string, date: Date) => {
     const taskIndex = tasklist.findIndex((task) => task.id === id);
     if (taskIndex === -1) return;
@@ -172,6 +163,7 @@ export default function Index() {
           onToggle={toggleTask}
           onDelete={deleteTask}
           onEdit={editTask}
+          onSetReminder={setReminder}
         />
       )}
       ListHeaderComponent={
@@ -218,14 +210,6 @@ export default function Index() {
               </Pressable>
             ))}
           </View>
-
-          {/* Temporary: remove when reminders are in place */}
-          <Pressable
-            style={[styles.button, styles.testButton]}
-            onPress={sendTestNotification}
-          >
-            <Text style={styles.buttonText}>Testa notis (10 s)</Text>
-          </Pressable>
         </View>
       }
     />
@@ -275,11 +259,6 @@ const createStyles = (colors: Colors) =>
       textAlign: "center",
       marginTop: 20,
       color: colors.textMuted,
-    },
-    testButton: {
-      marginTop: 12,
-      paddingVertical: 12,
-      alignItems: "center",
     },
     filterRow: {
       flexDirection: "row",
