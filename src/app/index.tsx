@@ -1,5 +1,6 @@
 import { Task, TaskItem } from "@/components/TaskItem";
 import { Colors, useColors } from "@/constants/colors";
+import * as Notifications from "expo-notifications";
 import { Storage } from "expo-sqlite/kv-store";
 import { useEffect, useState } from "react";
 import {
@@ -43,6 +44,17 @@ export default function Index() {
   });
 
   useEffect(() => {
+    const requestNotificationPermission = async () => {
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== "granted") {
+        console.warn("Notification permissions not granted");
+      }
+    };
+
+    requestNotificationPermission();
+  }, []);
+
+  useEffect(() => {
     const loadTasks = async () => {
       try {
         const storedTasks = await Storage.getItem("tasks");
@@ -81,10 +93,40 @@ export default function Index() {
     setText("");
   };
 
+  // Cancel notification when task is marked as done or deleted
+  const cancelReminder = async (task: Task) => {
+    if (!task.notificationId) {
+      return;
+    }
+    try {
+      await Notifications.cancelScheduledNotificationAsync(task.notificationId);
+    } catch (error) {
+      console.warn("Failed to cancel reminder:", error);
+    }
+  };
+
   const toggleTask = (id: string) => {
-    const updatedTasks = tasklist.map((task) =>
-      task.id === id ? { ...task, done: !task.done } : task,
-    );
+    const taskToToggle = tasklist.find((task) => task.id === id);
+    const isBecomingDone = taskToToggle !== undefined && !taskToToggle.done;
+
+    if (isBecomingDone) {
+      cancelReminder(taskToToggle);
+    }
+
+    const updatedTasks = tasklist.map((task) => {
+      if (task.id !== id) {
+        return task;
+      }
+      if (isBecomingDone) {
+        return {
+          ...task,
+          done: true,
+          reminderAt: undefined,
+          notificationId: undefined,
+        };
+      }
+      return { ...task, done: false };
+    });
     setTasklist(updatedTasks);
   };
 
@@ -96,8 +138,46 @@ export default function Index() {
   };
 
   const deleteTask = (id: string) => {
+    const taskToDelete = tasklist.find((task) => task.id === id);
+    if (taskToDelete) {
+      cancelReminder(taskToDelete);
+    }
     const updatedTasks = tasklist.filter((task) => task.id !== id);
     setTasklist(updatedTasks);
+  };
+
+  const setReminder = async (id: string, date: Date) => {
+    const taskIndex = tasklist.findIndex((task) => task.id === id);
+    if (taskIndex === -1) return;
+
+    // Cancel existing notification if it exists
+    const existingNotificationId = tasklist[taskIndex].notificationId;
+    if (existingNotificationId) {
+      await Notifications.cancelScheduledNotificationAsync(
+        existingNotificationId,
+      );
+    }
+
+    // Schedule new notification
+    const notificationId = await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Påminnelse",
+        body: `Det är dags att göra: ${tasklist[taskIndex].title}`,
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
+        date,
+      },
+    });
+
+    // Update task with reminder and notification ID
+    setTasklist((current) =>
+      current.map((task) =>
+        task.id === id
+          ? { ...task, reminderAt: date.toISOString(), notificationId }
+          : task,
+      ),
+    );
   };
 
   return (
@@ -117,6 +197,7 @@ export default function Index() {
           onToggle={toggleTask}
           onDelete={deleteTask}
           onEdit={editTask}
+          onSetReminder={setReminder}
         />
       )}
       ListHeaderComponent={

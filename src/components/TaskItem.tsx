@@ -1,13 +1,28 @@
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Alert,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 
 import { Colors, useColors } from "@/constants/colors";
+import {
+  formatReminder,
+  nextAt,
+  secondsFromNow,
+  tomorrowAt,
+} from "@/utils/dates";
 import { useState } from "react";
 
 export type Task = {
   id: string;
   title: string;
   done: boolean;
+  reminderAt?: string; // Optional ISO date string for reminder
+  notificationId?: string; // Optional notification ID for canceling
 };
 
 export function TaskItem({
@@ -15,11 +30,13 @@ export function TaskItem({
   onToggle,
   onDelete,
   onEdit,
+  onSetReminder,
 }: {
   task: Task;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
   onEdit: (id: string, title: string) => void;
+  onSetReminder: (id: string, date: Date) => void;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState(task.title);
@@ -33,6 +50,24 @@ export function TaskItem({
       onEdit(task.id, draft.trim());
     }
     setIsEditing(false);
+  };
+
+  const openReminderMenu = () => {
+    Alert.alert("Påminn mig", task.title, [
+      {
+        text: "Om 1 timme",
+        onPress: () => onSetReminder(task.id, secondsFromNow(60 * 60)),
+      },
+      {
+        text: "Ikväll 18:00",
+        onPress: () => onSetReminder(task.id, nextAt(18)),
+      },
+      {
+        text: "Imorgon 09:00",
+        onPress: () => onSetReminder(task.id, tomorrowAt(9)),
+      },
+      { text: "Avbryt", style: "cancel" },
+    ]);
   };
 
   return (
@@ -54,21 +89,37 @@ export function TaskItem({
           onLongPress={() => setIsEditing(true)}
         >
           <View style={[styles.circle, task.done && styles.circleDone]} />
-          {isEditing ? (
-            <TextInput
-              style={styles.text}
-              value={draft}
-              onChangeText={setDraft}
-              autoFocus
-              onSubmitEditing={save}
-              onBlur={save}
-            />
-          ) : (
-            <Text style={[styles.text, task.done && styles.doneTask]}>
-              {task.title}
-            </Text>
-          )}
+          <View style={styles.content}>
+            {isEditing ? (
+              <TextInput
+                style={styles.text}
+                value={draft}
+                onChangeText={setDraft}
+                autoFocus
+                onSubmitEditing={save}
+                onBlur={save}
+              />
+            ) : (
+              <Text style={[styles.text, task.done && styles.doneTask]}>
+                {task.title}
+              </Text>
+            )}
+            {task.reminderAt && (
+              <Text style={styles.reminder}>
+                🔔 {formatReminder(task.reminderAt)}
+              </Text>
+            )}
+          </View>
         </Pressable>
+        {!task.done && (
+          <Pressable
+            style={styles.bellButton}
+            onPress={openReminderMenu}
+            hitSlop={8}
+          >
+            <Text style={styles.bell}>🔔</Text>
+          </Pressable>
+        )}
       </View>
     </ReanimatedSwipeable>
   );
@@ -104,10 +155,23 @@ const createStyles = (colors: Colors) =>
     circleDone: {
       backgroundColor: colors.primary,
     },
-    text: {
+    content: {
       flex: 1,
+    },
+    text: {
       fontSize: 16,
       color: colors.text,
+    },
+    reminder: {
+      marginTop: 2,
+      fontSize: 13,
+      color: colors.textMuted,
+    },
+    bellButton: {
+      marginLeft: 12,
+    },
+    bell: {
+      fontSize: 18,
     },
     doneTask: {
       textDecorationLine: "line-through",
