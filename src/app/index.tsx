@@ -93,10 +93,40 @@ export default function Index() {
     setText("");
   };
 
+  // Cancel notification when task is marked as done or deleted
+  const cancelReminder = async (task: Task) => {
+    if (!task.notificationId) {
+      return;
+    }
+    try {
+      await Notifications.cancelScheduledNotificationAsync(task.notificationId);
+    } catch (error) {
+      console.warn("Failed to cancel reminder:", error);
+    }
+  };
+
   const toggleTask = (id: string) => {
-    const updatedTasks = tasklist.map((task) =>
-      task.id === id ? { ...task, done: !task.done } : task,
-    );
+    const taskToToggle = tasklist.find((task) => task.id === id);
+    const isBecomingDone = taskToToggle !== undefined && !taskToToggle.done;
+
+    if (isBecomingDone) {
+      cancelReminder(taskToToggle);
+    }
+
+    const updatedTasks = tasklist.map((task) => {
+      if (task.id !== id) {
+        return task;
+      }
+      if (isBecomingDone) {
+        return {
+          ...task,
+          done: true,
+          reminderAt: undefined,
+          notificationId: undefined,
+        };
+      }
+      return { ...task, done: false };
+    });
     setTasklist(updatedTasks);
   };
 
@@ -108,6 +138,10 @@ export default function Index() {
   };
 
   const deleteTask = (id: string) => {
+    const taskToDelete = tasklist.find((task) => task.id === id);
+    if (taskToDelete) {
+      cancelReminder(taskToDelete);
+    }
     const updatedTasks = tasklist.filter((task) => task.id !== id);
     setTasklist(updatedTasks);
   };

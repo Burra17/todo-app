@@ -111,13 +111,15 @@ export function TaskItem({
             )}
           </View>
         </Pressable>
-        <Pressable
-          style={styles.bellButton}
-          onPress={openReminderMenu}
-          hitSlop={8}
-        >
-          <Text style={styles.bell}>🔔</Text>
-        </Pressable>
+        {!task.done && (
+          <Pressable
+            style={styles.bellButton}
+            onPress={openReminderMenu}
+            hitSlop={8}
+          >
+            <Text style={styles.bell}>🔔</Text>
+          </Pressable>
+        )}
       </View>
     </ReanimatedSwipeable>
   );
