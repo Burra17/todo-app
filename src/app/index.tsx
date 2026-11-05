@@ -26,6 +26,9 @@ const EMPTY_MESSAGES: Record<Filter, string> = {
   done: "Inga klara uppgifter än. Bocka av en uppgift så hamnar den här.",
 };
 
+const secondsFromNow = (seconds: number) =>
+  new Date(Date.now() + seconds * 1000);
+
 export default function Index() {
   const [text, setText] = useState("");
   const [tasklist, setTasklist] = useState<Task[]>([]);
@@ -113,13 +116,43 @@ export default function Index() {
   };
 
   const sendTestNotification = async () => {
-    await Notifications.scheduleNotificationAsync({
-      content: { title: "Test", body: "Påminnelser fungerar! 🎉" },
+    if (tasklist.length > 0) {
+      await setReminder(tasklist[0].id, secondsFromNow(10));
+    }
+  };
+
+  const setReminder = async (id: string, date: Date) => {
+    const taskIndex = tasklist.findIndex((task) => task.id === id);
+    if (taskIndex === -1) return;
+
+    // Cancel existing notification if it exists
+    const existingNotificationId = tasklist[taskIndex].notificationId;
+    if (existingNotificationId) {
+      await Notifications.cancelScheduledNotificationAsync(
+        existingNotificationId,
+      );
+    }
+
+    // Schedule new notification
+    const notificationId = await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Påminnelse",
+        body: `Det är dags att göra: ${tasklist[taskIndex].title}`,
+      },
       trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-        seconds: 10,
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
+        date,
       },
     });
+
+    // Update task with reminder and notification ID
+    setTasklist((current) =>
+      current.map((task) =>
+        task.id === id
+          ? { ...task, reminderAt: date.toISOString(), notificationId }
+          : task,
+      ),
+    );
   };
 
   return (

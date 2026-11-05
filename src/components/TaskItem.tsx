@@ -8,6 +8,8 @@ export type Task = {
   id: string;
   title: string;
   done: boolean;
+  reminderAt?: string; // Optional ISO date string for reminder
+  notificationId?: string; // Optional notification ID for canceling
 };
 
 export function TaskItem({
