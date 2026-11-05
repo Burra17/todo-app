@@ -21,8 +21,11 @@ export type Task = {
   id: string;
   title: string;
   done: boolean;
-  reminderAt?: string; // Optional ISO date string for reminder
-  notificationId?: string; // Optional notification ID for canceling
+  // Optional so tasks saved before reminders existed are still valid.
+  // A string, not a Date: JSON.parse doesn't turn ISO strings back into Dates.
+  reminderAt?: string;
+  // Needed to cancel the scheduled notification later
+  notificationId?: string;
 };
 
 export function TaskItem({
@@ -45,7 +48,8 @@ export function TaskItem({
 
   const save = () => {
     if (draft.trim() === "") {
-      setDraft(task.title); // Revert to original title if empty
+      // Keep the old title, and reset the draft so the next edit isn't empty
+      setDraft(task.title);
     } else {
       onEdit(task.id, draft.trim());
     }
@@ -125,8 +129,11 @@ export function TaskItem({
   );
 }
 
+// A function so the styles follow the current light/dark palette
 const createStyles = (colors: Colors) =>
   StyleSheet.create({
+    // Set on the swipeable container (not the row) so the red delete
+    // action behind the row also gets rounded corners
     card: {
       borderRadius: 12,
       overflow: "hidden",

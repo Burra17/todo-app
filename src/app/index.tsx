@@ -71,6 +71,8 @@ export default function Index() {
   }, []);
 
   useEffect(() => {
+    // This effect also runs on the first render, while tasklist is still [].
+    // Saving then would overwrite the stored tasks before they are loaded.
     if (!isLoaded) {
       return;
     }
@@ -93,7 +95,8 @@ export default function Index() {
     setText("");
   };
 
-  // Cancel notification when task is marked as done or deleted
+  // Scheduled notifications are owned by the OS and fire even if the task is
+  // gone, so they must be cancelled when a task is completed or deleted.
   const cancelReminder = async (task: Task) => {
     if (!task.notificationId) {
       return;
@@ -150,7 +153,7 @@ export default function Index() {
     const taskIndex = tasklist.findIndex((task) => task.id === id);
     if (taskIndex === -1) return;
 
-    // Cancel existing notification if it exists
+    // Changing the time must not leave the old notification scheduled
     const existingNotificationId = tasklist[taskIndex].notificationId;
     if (existingNotificationId) {
       await Notifications.cancelScheduledNotificationAsync(
@@ -158,7 +161,6 @@ export default function Index() {
       );
     }
 
-    // Schedule new notification
     const notificationId = await Notifications.scheduleNotificationAsync({
       content: {
         title: "Påminnelse",
@@ -170,7 +172,8 @@ export default function Index() {
       },
     });
 
-    // Update task with reminder and notification ID
+    // Use the function form: after the awaits above, `tasklist` may be stale
+    // (e.g. a task was added meanwhile) and would overwrite those changes.
     setTasklist((current) =>
       current.map((task) =>
         task.id === id
@@ -182,7 +185,10 @@ export default function Index() {
 
   return (
     <FlatList
+      // Lets iOS inset the content below the translucent header (iOS 26),
+      // which a plain View would render underneath
       contentInsetAdjustmentBehavior="automatic"
+      // Without this, the first tap on a button only dismisses the keyboard
       keyboardShouldPersistTaps="handled"
       style={styles.screen}
       contentContainerStyle={styles.list}
@@ -250,6 +256,8 @@ export default function Index() {
   );
 }
 
+// A function instead of a module-level StyleSheet, so the styles can use the
+// current light/dark palette from useColors() and update when it changes
 const createStyles = (colors: Colors) =>
   StyleSheet.create({
     screen: {
